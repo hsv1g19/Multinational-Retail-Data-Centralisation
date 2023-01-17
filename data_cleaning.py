@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, MetaData, Table
 
 class DataClean:
 
-    def clean_user_data(self):
+    def clean_user_data(self):#cleans user data
         df = DataExtractor().extract_rds_table('legacy_users')
         df['date_of_birth'] = pd.to_datetime(df['date_of_birth'],  infer_datetime_format=True, errors='coerce')
         df['join_date'] = pd.to_datetime(df['join_date'], infer_datetime_format=True, errors='coerce')
