@@ -64,17 +64,23 @@ class DatabaseConnector:
         DATABASE = 'Sales_Data'
         PORT = 5432
         engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}")
-        return data_frame.to_sql(table_name, engine, if_exists='append')
+        return data_frame.to_sql(table_name, engine)
                 
 
-        
-
+    
 
 
 if __name__ == '__main__':
     print('Tables in Database:',DatabaseConnector().list_db_tables())
+    # 
+    # #DatabaseConnector().upload_to_db(DataClean().clean_user_data(),'dim_users' )
+    # for df in DataClean().clean_card_data():
     from data_cleaning import DataClean
-    #DatabaseConnector().upload_to_db(DataClean().clean_user_data(),'dim_users' )
-    for df in DataClean().clean_card_data():
-        DatabaseConnector().upload_to_db(df,'dim_card_details' )
-        
+    from data_extraction import DataExtractor
+    #DatabaseConnector().upload_to_db(DataClean().clean_card_data(),'dim_card_details' )
+    #DatabaseConnector().upload_to_db(DataClean().clean_store_data(),'dim_store_details' )
+
+    DatabaseConnector().upload_to_db((DataClean().clean_products_data(DataExtractor().extract_from_s3('s3://data-handling-public/products.csv'))), 'dim_products')
+    #DatabaseConnector().upload_to_db(DataClean().clean_orders_data(), 'orders_table')
+    #DatabaseConnector().upload_to_db((DataClean().clean_date_times()), 'dim_date_times')
+    
