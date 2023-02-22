@@ -3,7 +3,7 @@ import yaml
 from data_extraction import DataExtractor
 import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table
-
+import numpy as np
 class DataClean:
 
     def clean_user_data(self):#cleans user data
@@ -26,26 +26,36 @@ class DataClean:
         list2=[]
         for data_frame in list_of_data_frames:
             #data_frame['expiry_date']=pd.to_datetime(data_frame['expiry_date'],  format='%m/%d', errors='coerce')
-            data_frame['date_payment_confirmed']=pd.to_datetime(data_frame['date_payment_confirmed'],  format='%Y-%m-%d', errors='coerce')
-            data_frame['card_number']=pd.to_numeric(data_frame['card_number'], errors="coerce")#invalid entries will be passed as NA
-            data_frame.dropna(subset=['card_number'], inplace=True)
+            data_frame['date_payment_confirmed']=pd.to_datetime(data_frame['date_payment_confirmed'],  infer_datetime_format=True, errors='coerce')
+            data_frame['card_number']=data_frame['card_number'].astype(str)
+            #data_frame['card_number'] = data_frame['card_number'].str.replace(r'\D', '')#TODO replace with np.nan to 
+            #data_frame['card_number']=pd.to_numeric(data_frame['card_number'], errors="coerce")#invalid entries will be passed as NA
+            #data_frame.dropna(subset=['card_number', 'date_payment_confirmed'], inplace=True)
+            data_frame['card_number'] = data_frame['card_number'].str.replace('\W', '', regex=True)
+            data_frame['card_number'] = data_frame['card_number'].apply(lambda x: np.nan if x=='NULL' else x)#not a number or nan replaces the cull values
+            data_frame.dropna(subset=['card_number', 'date_payment_confirmed'], inplace=True)
             list2.append(data_frame)
         card_data=pd.concat(list2)
         return card_data
+
 
     def clean_store_data(self):
         #number_of_stores=DataExtractor().list_number_of_stores('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores',{'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'})
         store_data=DataExtractor().store_dataframe()#data frame from store data strated from the api
         store_data.replace({'continent': ['eeEurope', 'eeAmerica']}, {'continent': ['Europe', 'America']}, inplace=True)
         store_data.drop( columns='lat', inplace=True)
-        store_data.drop_duplicates(subset=['address', 'longitude','store_type', 'latitude', 'continent'], keep=False, inplace=True)
+        #store_data.drop_duplicates(subset=['address', 'longitude','store_type', 'latitude', 'continent'], keep=False, inplace=True)
         store_data['opening_date']=pd.to_datetime(store_data['opening_date'], infer_datetime_format=True, errors='coerce')
-        store_data.dropna(subset=['opening_date', 'latitude','country_code', 'continent' ], inplace=True)
-        store_data['staff_numbers']= pd.to_numeric(store_data['staff_numbers'], errors="coerce")
-        store_data.dropna(subset=['staff_numbers'], inplace=True)
-        return store_data
-
-
+        store_data['store_type']=store_data['store_type'].astype(str)
+        store_data['store_type'] = store_data['store_type'].apply(lambda x: np.nan if x=='NULL' else x)
+        store_data.dropna(subset=['opening_date', 'store_type'], inplace=True)
+        #store_data['staff_numbers']= pd.to_numeric(store_data['staff_numbers'], errors="coerce")
+        #store_data.dropna(subset=['staff_numbers'], inplace=True)
+        #store_data['store_type']=store_data['store_type'].astype(str)
+        #data_frame['card_number']=data_frame['card_number'].astype(str)
+        store_data['staff_numbers'] = store_data['staff_numbers'].str.replace(r'\D', '')#TODO replace with np.nan to 
+        return store_data['country_code'].value_counts()
+    
     def convert_product_weights(self, products_dataframe):
 
         products_dataframe['weight']=products_dataframe['weight'].apply(str)
@@ -73,7 +83,7 @@ class DataClean:
         #print(orders_dataframe.duplicated(subset=['product_code', 'user_uuid']).sum())
         #DO I CHANGE LATE_HOURS TO EVENING
         #orders_dataframe['date_uuid'] = orders_dataframe['date_uuid'].astype('uuid')
-        return orders_dataframe.dtypes
+        return  orders_dataframe
     
     def clean_date_times(self):
 
@@ -105,4 +115,5 @@ if __name__ == '__main__':
     #print(DataClean().convert_product_weights(DataExtractor().extract_from_s3('s3://data-handling-public/products.csv')))
     #print(DataClean().clean_products_data(DataExtractor().extract_from_s3('s3://data-handling-public/products.csv')))
     #DataClean().clean_products_data()
+    #
     print(DataClean().clean_orders_data())
