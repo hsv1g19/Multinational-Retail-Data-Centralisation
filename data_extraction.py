@@ -139,7 +139,7 @@ class DataExtractor:
         s3 = boto3.client('s3')#To connect to the low-level client interface, you must use Boto3’s client(). You then pass in the name of the service you want to connect to, in this case, s3:
         obj = s3.get_object(Bucket='data-handling-public' , Key='date_details.json') # get object and file (key) from bucket
         dict_json = pd.read_json(obj['Body']) #read the body of the object json
-        return dict_json
+        return dict_json#returns dictionary 
         
 
 
