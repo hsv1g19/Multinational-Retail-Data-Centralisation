@@ -41,22 +41,30 @@ Looking out for NULL values, errors with dates, incorrectly typed values and row
 - In this final milestone After I had gathered the data into one database, I used SQL to get up-to-date metrics from the data. The business can then start to make more data-driven descisions and get a better understanding of its sales. I answered the following questions:
 
 - How many stores does the business have and in which countries?
+![Alt text](multicentral/1.jpg)
 
 - Which locations currently have the most stores?
+![Alt text](multicentral/2.jpg)
 
 - Which months produce the most sales typically?
+![Alt text](multicentral/3.jpg)
 
 - How many sales are coming from online?
+![Alt text](multicentral/4.jpg)
 
 - What percentage of sales come through each type of store?
+![Alt text](multicentral/5.jpg)
 
 - Which month in each year produced the most sales?
+![Alt text](multicentral/6.jpg)
 
 - What is our staff headcount?
+![Alt text](multicentral/7.jpg)
 
 - Which German store type is selling the most?
+![Alt text](multicentral/8.jpg)
 
 - How quickly is the company making sales?
-
+![Alt text](multicentral/9.jpg)
 
 
